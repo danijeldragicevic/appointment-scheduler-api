@@ -1,0 +1,35 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="VulnerableLibrariesLocal" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="isIgnoringEnabled" value="true" />
+      <option name="ignoredModules">
+        <list>
+          <option value="appointment-scheduler-api" />
+          <option value="appointment-scheduler-api" />
+          <option value="appointment-scheduler-api" />
+          <option value="appointment-scheduler-api" />
+          <option value="appointment-scheduler-api" />
+        </list>
+      </option>
+      <option name="ignoredPackages">
+        <list>
+          <option value="ch.qos.logback:logback-classic:1.4.14" />
+          <option value="net.minidev:json-smart:2.5.1" />
+          <option value="ch.qos.logback:logback-core:1.4.14" />
+          <option value="org.xmlunit:xmlunit-core:2.9.1" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.24" />
+        </list>
+      </option>
+      <option name="ignoredReasons">
+        <list>
+          <option value="Fixed in branch" />
+          <option value="Fixed in branch" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Fixed in branch" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>

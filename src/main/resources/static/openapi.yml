@@ -1,0 +1,253 @@
+openapi: 3.0.0
+info:
+  title: Appointment Scheduler API
+  version: 1.0.0
+  description: A basic appointment scheduling system
+servers:
+  - url: http://localhost:8080
+    description: Demo server
+paths:
+  /appointments:
+    get:
+      summary: List all appointments
+      responses:
+        '200':
+          description: A list of appointments
+          content:
+            application/json:
+              examples:
+                example:
+                  value: [
+                    {"id": 1, "user": "John Doe", "provider": "Dr. Smith", "service": "Check-up", "time": "09:00", "date": "2025-07-23", "status": "confirmed"},
+                    {"id": 2, "user": "Jane Doe", "provider": "Dr. Brown", "service": "Consultation", "time": "10:00", "date": "2025-07-23", "status": "confirmed"}
+                  ]
+    post:
+      summary: Book a new appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                provider:
+                  type: string
+                service:
+                  type: string
+                time:
+                  type: string
+                date:
+                  type: string
+            example:
+              user: "Alice Doe"
+              provider: "Dr. White"
+              service: "Consultation"
+              time: "11:00"
+              date: "2025-07-24"
+      responses:
+        '201':
+          description: Appointment booked successfully
+          content:
+            application/json:
+              example:
+                id: 3
+                user: "Alice Doe"
+                provider: "Dr. White"
+                service: "Consultation"
+                time: "11:00"
+                date: "2025-07-24"
+                status: "confirmed"
+        '400':
+          description: Invalid request data
+        '409':
+          description: Time slot not available
+  /appointments/{id}:
+    get:
+      summary: Get a specific appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Appointment details
+          content:
+            application/json:
+              example:
+                id: 1
+                user: "John Doe"
+                provider: "Dr. Smith"
+                service: "Check-up"
+                time: "09:00"
+                date: "2025-07-23"
+                status: "confirmed"
+        '404':
+          description: Appointment not found
+    put:
+      summary: Update an existing appointment (reschedule)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: string
+                provider:
+                  type: string
+                service:
+                  type: string
+                time:
+                  type: string
+                date:
+                  type: string
+            example:
+              user: "John Doe"
+              provider: "Dr. Smith"
+              service: "Check-up"
+              time: "14:00"
+              date: "2025-07-24"
+      responses:
+        '200':
+          description: Appointment updated successfully
+          content:
+            application/json:
+              example:
+                id: 1
+                user: "John Doe"
+                provider: "Dr. Smith"
+                service: "Check-up"
+                time: "14:00"
+                date: "2025-07-24"
+                status: "confirmed"
+        '404':
+          description: Appointment not found
+        '400':
+          description: Invalid request data
+        '409':
+          description: New time slot not available
+    delete:
+      summary: Cancel an appointment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Appointment cancelled successfully
+        '404':
+          description: Appointment not found
+  /users:
+    get:
+      summary: Retrieve user list
+      responses:
+        '200':
+          description: A list of users
+          content:
+            application/json:
+              examples:
+                example:
+                  value: [
+                    {"id": 1, "name": "John Doe", "email": "john@example.com", "phone": "555-0101"},
+                    {"id": 2, "name": "Jane Doe", "email": "jane@example.com", "phone": "555-0102"}
+                  ]
+    post:
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+            example:
+              name: "Bob Smith"
+              email: "bob@example.com"
+              phone: "555-0103"
+      responses:
+        '201':
+          description: User created successfully
+        '400':
+          description: Invalid request data
+  /users/{id}:
+    get:
+      summary: Get a specific user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              example:
+                id: 1
+                name: "John Doe"
+                email: "john@example.com"
+                phone: "555-0101"
+        '404':
+          description: User not found
+  /availability:
+    get:
+      summary: Retrieve provider availability
+      parameters:
+        - name: date
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "2025-07-23"
+        - name: provider
+          in: query
+          required: false
+          schema:
+            type: string
+          example: "Dr. Smith"
+      responses:
+        '200':
+          description: A list of available time slots
+          content:
+            application/json:
+              examples:
+                example:
+                  value: [
+                    {"provider": "Dr. Smith", "date": "2025-07-23", "available_times": ["09:00", "10:30", "14:00", "15:30"]},
+                    {"provider": "Dr. Brown", "date": "2025-07-24", "available_times": ["10:00", "13:00", "16:00"]}
+                  ]
+  /services:
+    get:
+      summary: List available services
+      responses:
+        '200':
+          description: A list of available services
+          content:
+            application/json:
+              examples:
+                example:
+                  value: [
+                    {"id": 1, "name": "Check-up", "duration": 30, "price": 100},
+                    {"id": 2, "name": "Consultation", "duration": 45, "price": 150},
+                    {"id": 3, "name": "Follow-up", "duration": 15, "price": 75}
+                  ]
