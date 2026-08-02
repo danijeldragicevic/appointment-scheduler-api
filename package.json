@@ -1,0 +1,44 @@
+{
+  "name": "appointment-scheduler-api",
+  "version": "1.0.0",
+  "description": "A basic appointment scheduling REST API",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "tsc --noEmit",
+    "mcp": "tsx src/mcp/server.ts"
+  },
+  "keywords": [
+    "appointment",
+    "scheduler",
+    "rest-api",
+    "express",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "dotenv": "^17.4.2",
+    "express": "^4.21.2",
+    "express-rate-limit": "^8.6.1",
+    "morgan": "^1.11.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^12.1.0",
+    "@types/express": "^4.17.21",
+    "@types/morgan": "^1.9.10",
+    "@types/node": "^22.10.5",
+    "@types/supertest": "^6.0.2",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "supertest": "^7.0.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
+  }
+}

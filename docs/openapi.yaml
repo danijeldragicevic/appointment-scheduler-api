@@ -1,0 +1,590 @@
+openapi: 3.0.3
+info:
+  title: Appointment Scheduler API
+  description: >
+    In-memory appointment scheduling API. Data resets on every server restart.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Health
+  - name: Appointments
+  - name: Users
+  - name: Availability
+  - name: Services
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      security: []
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+
+  /appointments:
+    get:
+      tags: [Appointments]
+      summary: List all appointments
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: List of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Appointment"
+    post:
+      tags: [Appointments]
+      summary: Book a new appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "201":
+          description: Appointment created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "409":
+          description: Requested time slot is already booked for that provider
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /appointments/{id}:
+    parameters:
+      - $ref: "#/components/parameters/AppointmentId"
+    get:
+      tags: [Appointments]
+      summary: Get an appointment by id
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Appointment found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Appointments]
+      summary: Reschedule an existing appointment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppointmentInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Appointment updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Appointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Requested new time slot is already booked for that provider
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      tags: [Appointments]
+      summary: Cancel an appointment
+      description: Marks the appointment as cancelled rather than deleting it.
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Appointment cancelled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Appointment cancelled successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /users:
+    get:
+      tags: [Users]
+      summary: List all users
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      tags: [Users]
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /users/{id}:
+    parameters:
+      - $ref: "#/components/parameters/UserId"
+    get:
+      tags: [Users]
+      summary: Get a user by id
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Users]
+      summary: Update a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: User updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Users]
+      summary: Delete a user
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: User deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: User has confirmed appointments and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /availability:
+    get:
+      tags: [Availability]
+      summary: List available time slots per provider
+      description: >
+        Returns each provider's base slots minus any confirmed appointments
+        for the given date. Defaults to today's date and all known providers.
+      parameters:
+        - name: date
+          in: query
+          required: false
+          description: Date to check availability for (YYYY-MM-DD). Defaults to today.
+          schema:
+            type: string
+            format: date
+        - name: provider
+          in: query
+          required: false
+          description: Restrict results to a single provider. Defaults to all providers.
+          schema:
+            type: string
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Availability per provider
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProviderAvailability"
+
+  /services:
+    get:
+      tags: [Services]
+      summary: List all services
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: List of services
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      tags: [Services]
+      summary: Create a new service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "201":
+          description: Service created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+
+  /services/{id}:
+    parameters:
+      - $ref: "#/components/parameters/ServiceId"
+    get:
+      tags: [Services]
+      summary: Get a service by id
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Service found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Services]
+      summary: Update a service
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Service updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Services]
+      summary: Delete a service
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/TooManyRequests"
+        "200":
+          description: Service deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Service deleted successfully
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          description: Service has confirmed appointments and cannot be deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: >
+        Static bearer token. Either `API_TOKEN` or `AGENT_API_TOKEN` is
+        accepted; both grant identical API access, and differ only in
+        rate-limit tier (see the 429 response).
+
+  parameters:
+    AppointmentId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    UserId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    ServiceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+  responses:
+    Unauthorized:
+      description: Missing, malformed, or incorrect bearer token
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: >
+        Request body failed validation, user/provider/service does not
+        match an existing record, the requested time is not one of the
+        provider's offered slots (see `GET /availability`), or the date is
+        in the past or more than a year in the future
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    TooManyRequests:
+      description: >
+        Rate limit exceeded for this window. Requests authenticated with
+        `AGENT_API_TOKEN` get a higher limit than those using the default
+        `API_TOKEN` (see the bearerAuth security scheme description).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      example:
+        error: "Appointment with id 99 not found"
+
+    AppointmentInput:
+      type: object
+      required: [user, provider, service, time, date]
+      properties:
+        user:
+          type: string
+          description: Must match the `name` of an existing user (see `GET /users`).
+          example: John Doe
+        provider:
+          type: string
+          description: Must match a known provider (see `GET /availability`).
+          example: Dr. Smith
+        service:
+          type: string
+          description: Must match the `name` of an existing service (see `GET /services`).
+          example: Check-up
+        time:
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+          description: >
+            24-hour time in HH:MM format (00:00–23:59). Must also match one
+            of the chosen provider's open slots for that date (see
+            `GET /availability`).
+          example: "09:00"
+        date:
+          type: string
+          format: date
+          description: >
+            Must be a real calendar date in YYYY-MM-DD format, no earlier
+            than today and no more than a year from today.
+          example: "2025-07-23"
+
+    Appointment:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+            status:
+              type: string
+              enum: [confirmed, cancelled]
+        - $ref: "#/components/schemas/AppointmentInput"
+
+    UserInput:
+      type: object
+      required: [name, email, phone]
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john@example.com
+        phone:
+          type: string
+          example: "555-0101"
+
+    User:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+        - $ref: "#/components/schemas/UserInput"
+
+    ServiceInput:
+      type: object
+      required: [name, duration, price]
+      properties:
+        name:
+          type: string
+          example: Check-up
+        duration:
+          type: integer
+          description: Duration in minutes. Must be a positive number.
+          example: 30
+          minimum: 1
+        price:
+          type: number
+          description: Must be zero or greater.
+          example: 100
+          minimum: 0
+
+    Service:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: integer
+              example: 1
+        - $ref: "#/components/schemas/ServiceInput"
+
+    ProviderAvailability:
+      type: object
+      properties:
+        provider:
+          type: string
+          example: Dr. Smith
+        date:
+          type: string
+          format: date
+          example: "2025-07-23"
+        available_times:
+          type: array
+          items:
+            type: string
+          example: ["10:30", "11:00", "13:00"]
